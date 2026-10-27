@@ -1,0 +1,33 @@
+{
+    "version": "1.4.0",
+    "description": "Animated desktop buddy that shows your Claude usage",
+    "homepage": "https://github.com/SebastianYauri/clawdy",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/SebastianYauri/clawdy/releases/download/v1.4.0/Clawdy-Setup.exe",
+            "hash": "c39a9db2a2dd19a5e772ab4da24872b9971e23c84a1c881d8f434726222c9512"
+        }
+    },
+    "innosetup": true,
+    "pre_install": "if (Test-Path \"$dir\\..\\current\\Clawdy.exe\") { Start-Process \"$dir\\..\\current\\Clawdy.exe\" -ArgumentList '--quit' -Wait }",
+    "shortcuts": [
+        [
+            "Clawdy.exe",
+            "Clawdy"
+        ]
+    ],
+    "uninstaller": {
+        "script": "Start-Process \"$dir\\Clawdy.exe\" -ArgumentList '--uninstall' -Wait"
+    },
+    "checkver": {
+        "github": "https://github.com/SebastianYauri/clawdy"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/SebastianYauri/clawdy/releases/download/v$version/Clawdy-Setup.exe"
+            }
+        }
+    }
+}

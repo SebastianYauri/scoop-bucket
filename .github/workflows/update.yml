@@ -1,0 +1,32 @@
+name: Follow new Clawdy releases
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Update the manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh api repos/SebastianYauri/clawdy/releases/latest --jq .tag_name)
+          v="${tag#v}"
+          cur=$(jq -r .version bucket/clawdy.json)
+          if [ "$v" = "$cur" ]; then echo "already at $v"; exit 0; fi
+          url="https://github.com/SebastianYauri/clawdy/releases/download/v$v/Clawdy-Setup.exe"
+          hash=$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1)
+          jq --arg v "$v" --arg u "$url" --arg h "$hash" \
+            '.version=$v | .architecture."64bit".url=$u | .architecture."64bit".hash=$h' \
+            bucket/clawdy.json > tmp.json && mv tmp.json bucket/clawdy.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "clawdy: update to $v"
+          git push
